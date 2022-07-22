@@ -1,3 +1,5 @@
+module Text
+
 INPUT_TEXT = [
     "Guess what color the first slot holds, choose between Blue, Green, Orange, Yellow, Pink & White",
     "Guess what color the second slot holds, choose between Blue, Green, Orange, Yellow, Pink & White",
@@ -7,17 +9,22 @@ INPUT_TEXT = [
 
 CREATOR_COLORS = ["blue", "green", "orange", "yellow", "pink", "white"]
 
+end
+
 class Game
-    attr_accessor :secret_code
+    include Text
 
     def initialize
         @guesser = nil
         @creator = nil
         @current_guesses_counter = nil
-        @secret_code = []
+        @player_creator = false
 
+        create_creator
+        secret_code_creation
         create_guesser
         guess_player_input
+        compare_results
     end
 
     def creator_or_guesser
@@ -39,31 +46,50 @@ class Game
         @guesser = Guesser.new(input)
     end
 
+    #Will create this method later when I am done with the game. This method will let the player be the creator of the secret code versus the computer.
+    def create_creator
+        @creator = Creator.new()
+    end
+
     def secret_code_creation
-        4.times { secret_code.push CREATOR_COLORS.sample}
+        if (@player_creator != false)
+            puts "Nej"
+        else
+            4.times {@creator.secret_code.push Text::CREATOR_COLORS.sample}
+            puts @creator.secret_code
+        end
     end
 
     def guess_player_input
         4.times do |i|
-            puts INPUT_TEXT[i]
+            puts Text::INPUT_TEXT[i]
             input = gets.chomp
             while (!valid_input?(input))
                 input = gets.chomp
             end
             @guesser.inputs << input
         end
-        return @guesser.inputs
+    end
+
+    #Fortsätt här!
+    def compare_results
+        @guesser.inputs.each_with_index do |code, idx|
+            if @guesser.inputs[idx] == @creator.secret_code[idx]
+                puts "#{code} color in slot #{idx+1} was correct!"
+            else
+                puts "#{code} color in slot #{idx+1} was incorrect!"
+            end
+        end
     end
 
     def valid_input?(input)
-        return input if CREATOR_COLORS.any?(input.downcase)
+        return input if Text::CREATOR_COLORS.any?(input.downcase)
         puts "You have not choosen a valid color. choose again"
     end
 
 end
 
 class Guesser
-
     attr_reader :name
     attr_accessor :inputs, :points
 
@@ -71,12 +97,14 @@ class Guesser
         @name = name
         @points = nil
         @inputs = []
-
     end
-
 end
 
 class Creator
+    attr_accessor :secret_code
+    def initialize()
+        @secret_code = []
+    end
 end
 
 x = Game.new
