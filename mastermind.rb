@@ -17,12 +17,15 @@ class Game
     def initialize
         @guesser = nil
         @creator = nil
-        @current_guesses_counter = nil
+        @turns = 0
         @player_creator = false
+        @secret_code = []
 
-        create_creator
+    end
+
+    def play
+        creator_or_guesser
         secret_code_creation
-        create_guesser
         guess_player_input
         compare_results
     end
@@ -31,7 +34,7 @@ class Game
         puts "Type C if you want to be the creator, else type G if you want to be the guesser"
         input = gets.chomp
         if input.capitalize == "C"
-            return creator
+            return create_creator
         elsif input.capitalize == "G"
             return create_guesser
         else
@@ -49,14 +52,16 @@ class Game
     #Will create this method later when I am done with the game. This method will let the player be the creator of the secret code versus the computer.
     def create_creator
         @creator = Creator.new()
+        @player_creator = true
     end
 
+    #Work on this method later
     def secret_code_creation
         if (@player_creator != false)
             puts "Nej"
         else
-            4.times {@creator.secret_code.push Text::CREATOR_COLORS.sample}
-            puts @creator.secret_code
+            4.times {@secret_code.push Text::CREATOR_COLORS.sample}
+            puts @secret_code
         end
     end
 
@@ -71,13 +76,14 @@ class Game
         end
     end
 
-    #Fortsätt här!
     def compare_results
         @guesser.inputs.each_with_index do |code, idx|
-            if @guesser.inputs[idx] == @creator.secret_code[idx]
+            if @guesser.inputs[idx] == @secret_code[idx]
                 puts "#{code} color in slot #{idx+1} was correct!"
+            elsif @secret_code.any? @guesser.inputs[idx]
+                puts "The color #{code} was correct, however in the wrong slot."
             else
-                puts "#{code} color in slot #{idx+1} was incorrect!"
+                puts "#{code} color in slot #{idx+1} was incorrect and is not in the secret code."
             end
         end
     end
@@ -101,10 +107,9 @@ class Guesser
 end
 
 class Creator
-    attr_accessor :secret_code
     def initialize()
-        @secret_code = []
+
     end
 end
 
-x = Game.new
+x = Game.new.play
