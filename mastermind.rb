@@ -60,6 +60,7 @@ class Game
         if (@player_creator != false)
             puts "Nej"
         else
+            @creator = Creator.new()
             4.times {@secret_code.push Text::CREATOR_COLORS.sample}
             puts @secret_code
         end
