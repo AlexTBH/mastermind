@@ -19,15 +19,29 @@ class Game
         @creator = nil
         @turns = 0
         @player_creator = false
-        @secret_code = []
 
     end
 
     def play
         creator_or_guesser
         secret_code_creation
-        guess_player_input
-        compare_results
+
+        while @turns < 3
+            guess_player_input
+            compare_results
+
+            break if @guesser.inputs == @creator.secret_code
+            @guesser.inputs = []
+        end
+        game_over?
+    end
+
+    def game_over?
+        if @guesser.inputs == @creator.secret_code
+            puts "You win!"
+        else
+            puts "You lose"
+        end
     end
 
     def creator_or_guesser
@@ -61,8 +75,8 @@ class Game
             puts "Nej"
         else
             @creator = Creator.new()
-            4.times {@secret_code.push Text::CREATOR_COLORS.sample}
-            puts @secret_code
+            4.times {@creator.secret_code.push Text::CREATOR_COLORS.sample}
+            puts @creator.secret_code
         end
     end
 
@@ -79,14 +93,15 @@ class Game
 
     def compare_results
         @guesser.inputs.each_with_index do |code, idx|
-            if @guesser.inputs[idx] == @secret_code[idx]
+            if @guesser.inputs[idx] == @creator.secret_code[idx]
                 puts "#{code} color in slot #{idx+1} was correct!"
-            elsif @secret_code.any? @guesser.inputs[idx]
+            elsif @creator.secret_code.any? @guesser.inputs[idx]
                 puts "The color #{code} was correct, however in the wrong slot."
             else
                 puts "#{code} color in slot #{idx+1} was incorrect and is not in the secret code."
             end
         end
+        @turns += 1
     end
 
     def valid_input?(input)
@@ -108,8 +123,10 @@ class Guesser
 end
 
 class Creator
-    def initialize()
 
+    attr_accessor :secret_code
+    def initialize()
+        @secret_code = []
     end
 end
 
