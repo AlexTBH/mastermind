@@ -24,10 +24,15 @@ class Game
 
     def play
         creator_or_guesser
+        create_players
         secret_code_creation
 
         while @turns < 12
-            player_guess_input
+            if @player_creator != true
+                player_guess_input
+            else
+                computer_guesser
+            end
             compare_results
 
             break if @guesser.inputs == @creator.secret_code
@@ -47,31 +52,28 @@ class Game
     end
     
     def computer_guesser
-        #Work on this next
+        4.times {@guesser.inputs.push Text::CREATOR_COLORS.sample}
+        #Finish the code here
     end
 
     def creator_or_guesser
         puts "Type C if you want to be the creator, else type G if you want to be the guesser"
         input = gets.chomp
         if input.capitalize == "C"
-            return create_creator
+            @player_creator = true
         elsif input.capitalize == "G"
-            return create_guesser
+            @player_creator = false
         else
             puts "Type either C or G"
             creator_or_guesser
         end
     end
 
-    def create_guesser
+    def create_players
+        @creator = Creator.new()
         @guesser = Guesser.new()
     end
-
-    def create_creator
-        @creator = Creator.new()
-        @player_creator = true
-    end
-
+    
     #Work on this method later. This will let the player be the creator of the secret code.
     def secret_code_creation
         if (@player_creator != false)
@@ -87,7 +89,6 @@ class Game
         else
             @creator = Creator.new()
             4.times {@creator.secret_code.push Text::CREATOR_COLORS.sample}
-            puts @creator.secret_code
         end
     end
 
