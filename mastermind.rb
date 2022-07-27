@@ -26,8 +26,8 @@ class Game
         creator_or_guesser
         secret_code_creation
 
-        while @turns < 3
-            guess_player_input
+        while @turns < 12
+            player_guess_input
             compare_results
 
             break if @guesser.inputs == @creator.secret_code
@@ -38,10 +38,16 @@ class Game
 
     def game_over?
         if @guesser.inputs == @creator.secret_code
+            puts "\n"
             puts "You win!"
         else
+            puts "\n"
             puts "You lose"
         end
+    end
+    
+    def computer_guesser
+        #Work on this next
     end
 
     def creator_or_guesser
@@ -58,21 +64,26 @@ class Game
     end
 
     def create_guesser
-        puts "Type the name of the Guesser"
-        input = gets.chomp
-        @guesser = Guesser.new(input)
+        @guesser = Guesser.new()
     end
 
-    #Will create this method later when I am done with the game. This method will let the player be the creator of the secret code versus the computer.
     def create_creator
         @creator = Creator.new()
         @player_creator = true
     end
 
-    #Work on this method later
+    #Work on this method later. This will let the player be the creator of the secret code.
     def secret_code_creation
         if (@player_creator != false)
-            puts "Nej"
+            puts "Choose the colors for your secret code. Choose between the colors \n #{Text::CREATOR_COLORS}"
+            4.times do
+                input = gets.chomp
+                while (!valid_input?(input))
+                    input = gets.chomp
+                end
+                @creator.secret_code << input
+            end
+            puts "\n #{@creator.secret_code}"
         else
             @creator = Creator.new()
             4.times {@creator.secret_code.push Text::CREATOR_COLORS.sample}
@@ -80,13 +91,14 @@ class Game
         end
     end
 
-    def guess_player_input
+    def player_guess_input
         4.times do |i|
             puts Text::INPUT_TEXT[i]
             input = gets.chomp
             while (!valid_input?(input))
                 input = gets.chomp
             end
+            puts "\n"
             @guesser.inputs << input
         end
     end
@@ -101,6 +113,7 @@ class Game
                 puts "#{code} color in slot #{idx+1} was incorrect and is not in the secret code."
             end
         end
+        puts "\n"
         @turns += 1
     end
 
@@ -115,9 +128,7 @@ class Guesser
     attr_reader :name
     attr_accessor :inputs, :points
 
-    def initialize(name, inputs=nil, points=nil)
-        @name = name
-        @points = nil
+    def initialize(inputs=nil)
         @inputs = []
     end
 end
