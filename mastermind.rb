@@ -19,7 +19,7 @@ class Game
         @creator = nil
         @turns = 0
         @player_creator = false
-
+        @computer_hints = []
     end
 
     def play
@@ -34,7 +34,7 @@ class Game
                 computer_guesser
             end
             compare_results
-
+            hint_to_computer
             break if @guesser.inputs == @creator.secret_code
             @guesser.inputs = []
         end
@@ -44,16 +44,31 @@ class Game
     def game_over?
         if @guesser.inputs == @creator.secret_code
             puts "\n"
-            puts "You win!"
+            puts "Guesser wins!!"
         else
             puts "\n"
-            puts "You lose"
+            puts "Creator loses!!"
         end
     end
     
     def computer_guesser
         4.times {@guesser.inputs.push Text::CREATOR_COLORS.sample}
-        #Finish the code here
+        puts "\n"
+        puts "The computer has made it guesses on the secret code!"
+    end
+
+    def hint_to_computer
+        puts "Give hints to the computer which color and slot is correct!"
+        puts "Type X if the color is not in the secret code, O if it is the correct color and slot, S if it the right color but wrong slot."
+            4.times do |i|
+                input = gets.chomp.capitalize.to_s
+                while (input != "X" && input != "O" && input != "S")
+                    puts "Please type the letter X, O or S"
+                    input = gets.chomp.capitalize
+                end
+                @computer_hints << input
+            end
+            puts @computer_hints.join(" ")
     end
 
     def creator_or_guesser
@@ -77,7 +92,7 @@ class Game
     #Work on this method later. This will let the player be the creator of the secret code.
     def secret_code_creation
         if (@player_creator != false)
-            puts "Choose the colors for your secret code. Choose between the colors \n #{Text::CREATOR_COLORS}"
+            puts "Choose the colors for your secret code. Choose between the colors \n #{Text::CREATOR_COLORS.join(" ")}"
             4.times do
                 input = gets.chomp
                 while (!valid_input?(input))
@@ -85,7 +100,7 @@ class Game
                 end
                 @creator.secret_code << input
             end
-            puts "\n #{@creator.secret_code}"
+            puts "Your secret code is :\n #{@creator.secret_code.join(" ")}"
         else
             @creator = Creator.new()
             4.times {@creator.secret_code.push Text::CREATOR_COLORS.sample}
