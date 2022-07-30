@@ -33,10 +33,12 @@ class Game
             else
                 computer_guesser
             end
+
+            break if @guesser.inputs == @creator.secret_code
+
             compare_results
             hint_to_computer
-            break if @guesser.inputs == @creator.secret_code
-            @guesser.inputs = []
+            @turns += 1
         end
         game_over?
     end
@@ -52,9 +54,20 @@ class Game
     end
     
     def computer_guesser
-        4.times {@guesser.inputs.push Text::CREATOR_COLORS.sample}
+        4.times do |i|
+            if (@computer_hints[i] == "X" || @computer_hints.empty?)
+                @guesser.inputs.push[i] = Text::CREATOR_COLORS.sample
+            #elsif (@computer_hints[i] == "S")
+            #    
+            else
+                next
+            end
+        end
+
         puts "\n"
         puts "The computer has made it guesses on the secret code!"
+        puts "#{@guesser.inputs}"
+        @computer_hints = []
     end
 
     def hint_to_computer
@@ -130,7 +143,6 @@ class Game
             end
         end
         puts "\n"
-        @turns += 1
     end
 
     def valid_input?(input)
