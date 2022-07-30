@@ -20,6 +20,7 @@ class Game
         @turns = 0
         @player_creator = false
         @computer_hints = []
+        @save_colors = []
     end
 
     def play
@@ -32,12 +33,11 @@ class Game
                 player_guess_input
             else
                 computer_guesser
+                compare_results
+                break if @guesser.inputs == @creator.secret_code
+                hint_to_computer
             end
 
-            break if @guesser.inputs == @creator.secret_code
-
-            compare_results
-            hint_to_computer
             @turns += 1
         end
         game_over?
@@ -55,18 +55,19 @@ class Game
     
     def computer_guesser
         4.times do |i|
-            if (@computer_hints[i] == "X" || @computer_hints.empty?)
-                @guesser.inputs.push[i] = Text::CREATOR_COLORS.sample
-            #elsif (@computer_hints[i] == "S")
-            #    
-            else
-                next
+            if (@computer_hints[i] == "O")
+                next                
+            elsif (@computer_hints[i] == "S" || @computer_hints.empty? || @save_colors.empty?)
+                @guesser.inputs[i] = Text::CREATOR_COLORS.sample
+            elsif (@computer_hints[i] == "X")
+                @guesser.inputs[i] = @save_colors.sample                             
             end
         end
 
         puts "\n"
         puts "The computer has made it guesses on the secret code!"
-        puts "#{@guesser.inputs}"
+        puts "Computer guesses: #{@guesser.inputs.join(" ")}"
+        puts "\n"
         @computer_hints = []
     end
 
@@ -74,14 +75,26 @@ class Game
         puts "Give hints to the computer which color and slot is correct!"
         puts "Type X if the color is not in the secret code, O if it is the correct color and slot, S if it the right color but wrong slot."
             4.times do |i|
-                input = gets.chomp.capitalize.to_s
+                input = gets.chomp.capitalize
                 while (input != "X" && input != "O" && input != "S")
                     puts "Please type the letter X, O or S"
                     input = gets.chomp.capitalize
                 end
+                if input == "X"
+                    Text::CREATOR_COLORS.delete_if {|color| color == @guesser.inputs[i]}
+                elsif input == "S"
+                    save_color_input(@guesser.inputs[i])
+                end
                 @computer_hints << input
             end
-            puts @computer_hints.join(" ")
+    end
+
+    def save_color_input(input)
+        if @save_colors.include?(input)
+            return
+        else
+            @save_colors << input
+        end
     end
 
     def creator_or_guesser
