@@ -31,6 +31,9 @@ class Game
         while @turns < 12
             if @player_creator != true
                 player_guess_input
+                compare_results
+                break if @guesser.inputs == @creator.secret_code
+                @guesser.inputs = []
             else
                 computer_guesser
                 compare_results
@@ -140,7 +143,6 @@ class Game
             while (!valid_input?(input))
                 input = gets.chomp
             end
-            puts "\n"
             @guesser.inputs << input
         end
     end
